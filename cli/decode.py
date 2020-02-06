@@ -53,13 +53,13 @@ def split(in_bytes, request):
 
 def sig_encode(bs):
     r, s = split(bs, 'sig')
-    print(json.dumps({'field': r, 'scalar': s}))
+    print(json.dumps({'status': 'Ok', 'field': r, 'scalar': s}))
     return
 
 # versionbyte length = 1 byte
 def pk_encode(bpk):
     x, y = split(bpk, 'pk')
-    print(json.dumps({'x': x, 'y': y}))
+    print(json.dumps({'status': 'Ok', 'x': x, 'y': y}))
     return
 
 # b58_pk is version byte || sign bit || x coord
