@@ -1,5 +1,5 @@
 import hashlib, struct, sys, base58, json, binascii
-import schnorr
+from codaledgercli import schnorr
 
 # whole version byte tables for coda
 value_to_version_byte = {
