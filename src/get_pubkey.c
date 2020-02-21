@@ -16,7 +16,7 @@ static const bagl_element_t ui_pubkey_compare[] = {
 
 static const bagl_element_t* ui_prepro_pubkey_compare(const bagl_element_t *element) {
   if ((element->component.userid == 1 && ctx->display_index == 0) ||
-      (element->component.userid == 2 && ctx->display_index == group_bytes-12)) {
+      (element->component.userid == 2 && ctx->display_index == affine_bytes-12)) {
     return NULL;
   }
   return element;
@@ -35,7 +35,7 @@ static unsigned int ui_pubkey_compare_button(unsigned int button_mask, unsigned 
 
   case BUTTON_RIGHT:
   case BUTTON_EVT_FAST | BUTTON_RIGHT: // SEEK RIGHT
-    if (ctx->display_index < group_bytes-12) {
+    if (ctx->display_index < affine_bytes-12) {
       ctx->display_index++;
     }
     os_memmove(ctx->partial_str, ctx->full_str+ctx->display_index, 12);
@@ -89,7 +89,7 @@ static const bagl_element_t ui_pubkey_approve[] = {
 
 static unsigned int ui_pubkey_approve_button(unsigned int button_mask, unsigned int button_mask_counter) {
   uint16_t tx = 0;
-  group public_key;
+  affine public_key;
   scalar priv_key;
   switch (button_mask) {
   case BUTTON_EVT_RELEASED | BUTTON_LEFT: // REJECT
@@ -99,8 +99,8 @@ static unsigned int ui_pubkey_approve_button(unsigned int button_mask, unsigned 
 
   case BUTTON_EVT_RELEASED | BUTTON_RIGHT: // APPROVE
     generate_keypair(ctx->key_index, &public_key, priv_key);
-    os_memmove(G_io_apdu_buffer + tx, &public_key, group_bytes);
-    tx += group_bytes;
+    os_memmove(G_io_apdu_buffer + tx, &public_key, affine_bytes);
+    tx += affine_bytes;
     io_exchange_with_code(SW_OK, tx);
     os_memmove(ctx->type_str, "Compare:", 9);
     // hash pk to display (192B is too much to meaningfully compare)

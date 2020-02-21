@@ -116,7 +116,7 @@ static unsigned int ui_hash_sign_button(unsigned int button_mask, unsigned int b
     // APPROVE
     case BUTTON_EVT_RELEASED | BUTTON_RIGHT: {
       scalar sk;
-      group pk;
+      affine pk;
       generate_keypair(ctx->key_index, &pk, sk);
       sign(G_io_apdu_buffer, G_io_apdu_buffer + field_bytes, &pk, sk, ctx->txn.hash, ctx->txn.hash);
       io_exchange_with_code(SW_OK, field_bytes + scalar_bytes);

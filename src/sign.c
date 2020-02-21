@@ -56,7 +56,7 @@ static unsigned int ui_sign_approve_button(unsigned int button_mask, unsigned in
 
   case BUTTON_EVT_RELEASED | BUTTON_RIGHT: // APPROVE
     {
-    group public_key;
+    affine public_key;
     scalar private_key;
     generate_keypair(ctx->key_index, &public_key, private_key);
     sign(G_io_apdu_buffer, G_io_apdu_buffer + field_bytes, &public_key, private_key, ctx->msg, ctx->msg + 96);
