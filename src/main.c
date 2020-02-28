@@ -64,14 +64,12 @@ typedef void handler_fn_t(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t 
 handler_fn_t handle_version;
 handler_fn_t handle_pubkey;
 handler_fn_t handle_sign;
-handler_fn_t handle_hash;
 
 static handler_fn_t* lookupHandler(uint8_t ins) {
   switch (ins) {
   case INS_VERSION:     return handle_version;
   case INS_PUBLIC_KEY:  return handle_pubkey;
   case INS_SIGN:        return handle_sign;
-  case INS_HASH:        return handle_hash;
   default:              return NULL;
   }
 }
