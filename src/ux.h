@@ -125,27 +125,11 @@ typedef struct {
   uint8_t partial_msg_str[CPART_LEN];
 } signature_context;
 
-// TODO get rid of dead code :)
-// this is never used -- we dont hash messages before signing
-typedef struct {
-  uint32_t key_index;
-  int sign;
-  uint8_t elem_len;
-  uint8_t display_index;
-  uint8_t elem_part; // screen index of elements
-  txn_state txn;
-  uint8_t label_str[CSTR_LEN];
-  uint8_t full_str[128];
-  uint8_t partial_str[CPART_LEN];
-  int initialized; // protects against certain attacks
-} hash_context;
-
 // To save memory, we store all the context types in a single global union,
 // taking advantage of the fact that only one command is executed at a time.
 typedef union {
   pubkey_context pk;
   signature_context s;
-  hash_context h;
 } command_context;
 extern command_context global;
 
