@@ -25,6 +25,10 @@ include $(BOLOS_SDK)/Makefile.defines
 APPNAME = "Coda"
 APPVERSION = 0.0.1
 APP_LOAD_PARAMS = --appFlags 0x00 $(COMMON_LOAD_PARAMS)
+# `49370` is decimal for `0xc0da`.
+# This number is determined by registering on https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+# `44` is the same for all Ledger apps, because they use BIP/SLIP44.
+# `44'` and `49730` are evaluated to `44 | 0x80000000` and `49370 | 0x80000000` respectively.
 APP_LOAD_PARAMS += --path "44'/49370'"
 
 ifeq ($(TARGET_NAME),TARGET_NANOS)
