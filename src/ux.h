@@ -151,5 +151,5 @@ extern command_context global;
 
 void ui_idle(void);
 void io_exchange_with_code(uint16_t code, uint16_t tx);
-void bin2hex(uint8_t *dst, uint8_t *data, uint64_t inlen);
+void bin2hex(uint8_t *dst, uint8_t *data, size_t inlen);
 int bin2dec(uint8_t *dst, uint64_t n);

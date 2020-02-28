@@ -49,9 +49,9 @@ static unsigned int ui_pubkey_compare_button(unsigned int button_mask, unsigned 
   return 0;
 }
 
-void bin2hex(uint8_t *dst, uint8_t *data, uint64_t inlen) {
+void bin2hex(uint8_t *dst, uint8_t *data, size_t inlen) {
   static uint8_t const hex[] = "0123456789abcdef";
-  for (uint64_t i = 0; i < inlen; i++) {
+  for (size_t i = 0; i < inlen; i++) {
     dst[2*i+0] = hex[(data[i]>>4) & 0x0F];
     dst[2*i+1] = hex[(data[i]>>0) & 0x0F];
   }

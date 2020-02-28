@@ -429,6 +429,8 @@ void generate_keypair(unsigned int index, affine *pub_key, scalar priv_key) {
   unsigned int bip32_path[5];
   unsigned char chain[32];
 
+  // bip32_path[0] = 44' because we use BIP/SLIP44, [1] = 49370' = 0xc0da
+  // these must match those found in Makefile
   bip32_path[0] = 44 | 0x80000000;
   bip32_path[1] = 49370 | 0x80000000;
   bip32_path[2] = index | 0x80000000;
@@ -503,7 +505,7 @@ void sign(field rx, scalar s, const affine *public_key,
   }
   schnorr_hash(s, msgx, public_key->x, public_key->y, rx,
                msgm);                             // e = hash(x || pkx || pky || xr || m)
-  os_memcpy(s, scalar_zero, (scalar_bytes - 16)); // use 128 LSB as challenge TODO what is 16.
+  os_memcpy(s, scalar_zero, (scalar_bytes - 16)); // use 128 LSB (128/8 = 16) as challenge
   scalar_mul(s, s, private_key);                  // e*sk
   scalar_add(s, k_prime, s);                      // k + e*sk
   return;
