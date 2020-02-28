@@ -14,6 +14,8 @@ n = 5543634365110765627805495722742127385843376434033820803592568747918351978899
 G = [1, 1587713460471950740217388326193312024737041813752165827005856534245539019723616944862168333942330219466268138558982]
 N = 382
 
+field_bytes = 48
+
 def next_bit():
     return getrandbits(1)
 
@@ -141,7 +143,7 @@ def point_mul(P, n):
     return R
 
 def bytes_from_int(x):
-    return x.to_bytes(95, byteorder="little")
+    return x.to_bytes(field_bytes, byteorder="little")
 
 def bytes_from_point(P):
     return (b'\x03' if P[1] & 1 else b'\x02') + bytes_from_int(P[0])
@@ -151,7 +153,7 @@ def point_from_bytes(b):
         odd = b[0] - 0x02
     else:
         return None
-    x = int_from_bytes(b[1:96])
+    x = int_from_bytes(b[1:field_bytes])
     y_sq = (pow(x, 3, p) + a_coeff * x + b_coeff) % p
     if not is_square(y_sq):
         return None
@@ -175,9 +177,9 @@ def bits_from_bytes(bs):
     return [b for by in bs for b in bits_from_byte(by)]
 
 def schnorr_hash(msg):
-    sign_state = [0x1cd65eabe7ba8054d22b27b48000ce60c6ee3519be7845cb2cfdae8a6ac784c335680ac91d55c045f3413c21324a1f79,
-        0x2016b2acb898819099d8b1132300d5ebb5cf5b0fb6d73a79f0ec6ad71dc7c66f5aa4ffeba4f8f69d4ac3cb85647131dc,
-        0x0d85b7e5fdce11a731ee504c23637803138dae7365d86934ddad174a06e71ff320232d8ba19882a1f437373387f7f0fa]
+    sign_state = [0x103b9c65528d48ea197e4caac51d8fda9ab0f624f92e9b3f752b8022f91a3523600e459640f0b4066ebe4d568da58ea0,
+    0x9d3b2798b0bdd9f80bd983f81fb4c7aaad12d82ba2af9c08e78b2716dc25b4fce20398e6c36420bac75c6efdbe2c887,
+    0x80368c9b06f76e2b7257d37b16bb57c2443ef5bd19c182e5bf1623947952bca0e70461cbbc17382a75e444712547b0e]
     (x, px, py, r, m) = msg
     state = poseidon.poseidon([int_from_bytes(x), int(px)], state=sign_state)
     state = poseidon.poseidon([int(py), int(r)], state=state)
@@ -201,15 +203,15 @@ def schnorr_sign(msg, seckey):
     return bytes_from_int(R[0]) + bytes_from_int((k + e * seckey) % n)
 
 def schnorr_verify(msg, pubkey, sig):
-    if len(pubkey) != 96:
-        raise ValueError('The public key must be a 96-byte array.')
-    if len(sig) != 190:
-        raise ValueError('The signature must be a 190-byte array.')
+    if len(pubkey) != field_bytes:
+        raise ValueError('The public key must be a field size byte array.')
+    if len(sig) != (field_bytes * 2):
+        raise ValueError('The signature must be a field size + scalar size byte array.')
     P = point_from_bytes(pubkey)
     if (P is None):
         return False
-    r = int_from_bytes(sig[0:95])
-    s = int_from_bytes(sig[95:190])
+    r = int_from_bytes(sig[0:field_bytes])
+    s = int_from_bytes(sig[field_bytes:(field_bytes * 2)])
     if (r >= p or s >= n):
         return False
     # field elts = [x, px, py, r], bitstrings = m
@@ -224,12 +226,12 @@ def schnorr_verify(msg, pubkey, sig):
     return True
 
 if __name__ == '__main__':
+    print('point mul')
+    msg = 240717916736854602989207148466022993262069182275
     assert is_on_curve(G[0], G[1])
-
-    msg = [bytes_from_int(25615870705115042543646988269442600291065870610810566568351522267883229178288637645455574607750193516168494708212492106060991223252842215604841819346335592341288722448465861172621202305332949789691389509124500513443739624704490), bytes_from_int(165263992375525314283137939099243432440837431930670926230162855107585165655283990966064758496729853898257922318576908240849)]
-    xx = 0x000072076b1ced72c972633bcb6d7789de299887c8cdb4834fca1f71379277fd506f997fc96665ae7cdb78f60a355bf79b0972eddbbb54d1f11779672e70ff9270123a9c6c1d781a6754bd6b3a91c5682a0288e360a044044cba50a785462160
-    ss = bytes_from_int(0x000151ddb1ecda8596755da7a42b71a5a580a95ef451d460ae5f9ad4c5b983b544a5082be1fad09bcfee3b7af86646ba0997c6e218c10c2faa1917b99d44e7af6daea04e5fcf117cc2ab52aaa825a1fcae62262303154b613d3c89f8fb8b5d16) + bytes_from_int(0x000176a0ec71ed9a5bd86a4d4a864c018f2b3b81acbbbe8652c307d176be08379d89154c3afd3d3c3434b9cd738b5e953dc376e5e806fa7596f78f784b86799d74063e1e6f67f43bc24b9a247a420290fca81e988dcf5168382caa287c6ce93d)
-
+    g2 = point_mul(G, msg)
+    print(hex(g2[0]))
+    print(hex(g2[1]))
     MSG = (b'this is a test', b'an excellent test')
     KEY = random_field_elt()
     SIG = schnorr_sign(MSG, KEY)

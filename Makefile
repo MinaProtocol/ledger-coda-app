@@ -71,7 +71,7 @@ $(info GCCPATH is not set: arm-none-eabi-* will be used from PATH)
 endif
 
 CC := $(CLANGPATH)clang
-CFLAGS += -O3 -Os
+CFLAGS += -O3 -Os -std=gnu11 -Wall -Wextra -Wno-\#warnings
 
 AS := $(GCCPATH)arm-none-eabi-gcc
 AFLAGS +=
