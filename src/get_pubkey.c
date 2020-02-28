@@ -113,7 +113,7 @@ static unsigned int ui_pubkey_approve_button(unsigned int button_mask, unsigned 
   return 0;
 }
 
-void handle_pubkey(uint8_t p1, uint8_t p2, uint8_t *data_buffer, uint16_t data_length, volatile unsigned int *flags, volatile unsigned int *tx) {
+void handle_pubkey(uint8_t *data_buffer, uint16_t data_length, volatile unsigned int *flags, volatile unsigned int *tx) {
 
   ctx->key_index = U4LE(data_buffer, 0);
   os_memmove(ctx->type_str, "Generate Public", 16);

@@ -59,7 +59,7 @@ void ui_idle(void) {
 #define INS_SIGN          0x04
 #define INS_HASH          0x08
 
-typedef void handler_fn_t(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t dataLength, volatile unsigned int *flags, volatile unsigned int *tx);
+typedef void handler_fn_t(uint8_t *dataBuffer, uint16_t dataLength, volatile unsigned int *flags, volatile unsigned int *tx);
 
 handler_fn_t handle_version;
 handler_fn_t handle_pubkey;
@@ -120,8 +120,7 @@ static void coda_main(void) {
         if (!handlerFn) {
           THROW(0x6D00);
         }
-        handlerFn(G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2],
-                  G_io_apdu_buffer + OFFSET_CDATA, G_io_apdu_buffer[OFFSET_LC], &flags, &tx);
+        handlerFn(G_io_apdu_buffer + OFFSET_CDATA, G_io_apdu_buffer[OFFSET_LC], &flags, &tx);
       }
       CATCH(EXCEPTION_IO_RESET) {
         THROW(EXCEPTION_IO_RESET);

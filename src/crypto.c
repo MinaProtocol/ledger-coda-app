@@ -482,7 +482,7 @@ void schnorr_hash(scalar out, const scalar in0, const scalar in1,
   poseidon_2in(pos, in0, in1);
   poseidon_2in(pos, in2, in3);
   poseidon_1in(pos, in4);
-  poseidon_digest(pos, out);
+  poseidon_digest(out, pos);
   return;
 }
 

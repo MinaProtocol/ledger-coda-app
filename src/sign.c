@@ -148,7 +148,7 @@ static unsigned int ui_sign_compare_button(unsigned int button_mask, unsigned in
   return 0;
 }
 
-void handle_sign(uint8_t p1, uint8_t p2, uint8_t *data_buffer, uint16_t data_length, volatile unsigned int *flags, volatile unsigned int *tx) {
+void handle_sign(uint8_t *data_buffer, uint16_t data_length, volatile unsigned int *flags, volatile unsigned int *tx) {
   // Read the index of the signing key. U4LE is a helper macro for
   // converting a 4-byte buffer to a uint32_t.
   ctx->key_index = U4LE(data_buffer, 0);

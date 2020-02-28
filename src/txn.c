@@ -182,7 +182,7 @@ static void __txn_next_elem(txn_state *txn) {
     if (txn->elem_type == TXN_ELEM_MEMO) {
       PRINTF("%s:%d\n", __FILE__, __LINE__);
       // store final hash -- XXX msg isn't hashed before signing so this doesn't make sense anymore
-      poseidon_digest(txn->hash_state, txn->hash);
+      poseidon_digest(txn->hash, txn->hash_state);
       THROW(TXN_STATE_FINISHED);
     }
     txn->slice_len = read_int(txn);

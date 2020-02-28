@@ -1383,6 +1383,6 @@ void poseidon_2in(state s, const scalar input0, const scalar input1) {
   poseidon(s);
 }
 
-void poseidon_digest(const state s, scalar out) {
+void poseidon_digest(scalar out, const state s) {
   os_memcpy(out, s[0], field_bytes);
 }
