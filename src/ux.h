@@ -42,65 +42,6 @@
 // Apps should never need to reference it directly.
 extern ux_state_t ux;
 
-// txn_decoder_state_e indicates a transaction decoder status
-typedef enum {
-    TXN_STATE_ERR = 1,  // invalid transaction (NOTE: it's illegal to THROW(0))
-    TXN_STATE_PARTIAL,  // no elements have been fully decoded yet
-    TXN_STATE_READY,    // at least one element is fully decoded
-    TXN_STATE_FINISHED, // reached end of transaction
-} txn_decoder_state_e;
-
-// txn_elem_type_e indicates a transaction element type.
-typedef enum {
-  TXN_ELEM_IS_DELEGATION,
-  TXN_ELEM_NONCE,
-  TXN_ELEM_FROM,
-  TXN_ELEM_TO,
-  TXN_ELEM_AMOUNT,
-  TXN_ELEM_FEE,
-  TXN_ELEM_MEMO,
-} txn_elem_type_e;
-
-#define CVAL_LEN 128
-
-// txn_state is a helper object for computing the hash of a streamed
-// transaction.
-typedef struct {
-  uint8_t buf[510];           // holds raw tx bytes; large enough for two 0xFF reads
-  uint16_t buf_len;           // number of valid bytes in buf
-  uint16_t pos;               // mid-decode offset; reset to 0 after each elem
-
-  txn_elem_type_e elem_type;  // type of most-recently-seen element
-  uint64_t slice_len;         // most-recently-seen slice length prefix
-  uint16_t slice_index;       // offset within current element slice
-
-  uint16_t sig_index;         // index of TxnSig being computed
-  scalar hash_state[3];       // buffer to hold intermediate hash state
-  scalar hash;                // buffer to hold final hash
-
-  uint8_t del;                // is delegation : 1 = true, 0 = false
-  uint32_t nonce;             // transaction nonce
-  uint8_t out_val[CVAL_LEN];  // currency value, in decimal
-  uint8_t val_len;            // length of out_val
-  uint8_t fee_val[CVAL_LEN];  // currency value, in decimal
-  uint32_t key_index;         // 'from' public key
-  scalar out_key;             // 'to' public key
-} txn_state;
-
-// txn_init initializes a transaction decoder, preparing it to calculate the
-// requested hash.
-void txn_init(txn_state *txn, uint16_t sig_index);
-
-// txn_update adds data to a transaction decoder.
-void txn_update(txn_state *txn, uint8_t *in, uint8_t inlen);
-
-// txn_next_elem decodes the next element of the transaction. If the element
-// is ready for display, txn_next_elem returns TXN_STATE_READY. If more data
-// is required, it returns TXN_STATE_PARTIAL. If a decoding error is
-// encountered, it returns TXN_STATE_ERR. If the transaction has been fully
-// decoded, it returns TXN_STATE_FINISHED.
-txn_decoder_state_e txn_next_elem(txn_state *txn);
-
 #define CSTR_LEN 40
 #define CPART_LEN 13 // display 12 chars, + 1 for NULL
 #define KHEX_LEN (field_bytes * 2 * 2)
