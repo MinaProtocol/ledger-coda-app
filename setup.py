@@ -11,7 +11,7 @@ setuptools.setup(
     description="Scripts to interact with the Coda Ledger app",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/rbkhmrcr/ledger-big-curves/",
+    url="https://github.com/CodaProtocol/ledger-coda-app/",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
