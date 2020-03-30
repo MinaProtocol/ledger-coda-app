@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="coda-ledger-cli",
-    version="0.0.4",
+    version="0.0.6",
     author="Rebekah Mercer",
     author_email="rebekah@o1labs.org",
     description="Scripts to interact with the Coda Ledger app",
