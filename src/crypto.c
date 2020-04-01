@@ -440,11 +440,8 @@ void generate_keypair(unsigned int index, affine *pub_key, scalar priv_key) {
   os_perso_derive_node_bip32(CX_CURVE_256K1, bip32_path,
                              sizeof(bip32_path) / sizeof(bip32_path[0]),
                              priv_key, chain);
-  os_memcpy(priv_key + 32, chain, 32);
-  os_memcpy(priv_key + 64, chain, 32);
-
+  os_memcpy(priv_key + 32, chain, 16);
   affine_scalar_mul(pub_key, priv_key, &affine_one);
-  // os_memset(priv_key, 0, sizeof(priv_key));
   return;
 }
 
@@ -457,8 +454,6 @@ inline unsigned int is_odd(const field y) { return (y[field_bytes - 1] & 1); }
 
 void schnorr_hash(scalar out, const scalar in0, const scalar in1,
                   const scalar in2, const scalar in3, const scalar in4) {
-
-  // state pos = {{0}, {0}, {0}};
 
   /*
   // state after applying {{0x2a, 0x2a, 0x2a, 0x2a, 0x2a, 0x2a, 0x2a, 0x65,
