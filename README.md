@@ -14,13 +14,21 @@ information.
 
 Generally you won't have to run these commands yourself as the codaledgercli
 library will be installed, but without installing the library, to get the app
-version, you run: ``` python3 codaledgercli/__main__.py --request='version' ```
-To generate and return the public key generated with `HDindex` 11: ``` python3
-codaledgercli/__main__.py --request=publickey --HDindex=11 ``` All of the
-information for a transaction is contained in two field elements. These are
-produced by the Coda client. To sign a transaction, the command is then: ```
-python3 codaledgercli/__main__.py --request=transaction --HDindex=1234
---msgx=recipientpkx --msgm=allotherinfo ```
+version, you run:
+```
+python3 codaledgercli/__main__.py --request='version'
+```
+To generate and return the public key generated with `HDindex` 11:
+```
+python3 codaledgercli/__main__.py --request=publickey --HDindex=11
+```
+
+All of the information for a transaction is contained in two field elements.
+These are produced by the Coda client. To sign a transaction, the command is
+then:
+```
+python3 codaledgercli/__main__.py --request=transaction --HDindex=1234 --msgx=recipientpkx --msgm=allotherinfo
+```
 
 ## Developing
 
@@ -63,3 +71,9 @@ The comments in files inside `src` explain more thoroughly what they do, but in
 brief, it contains all of the code for the app to function, including elliptic
 curve cryptography, the poseidon hash function, and signature generation.  The
 files in `glyphs` are used by the code in `src`, as is `nanos_app_coda.gif`.
+
+Most of the code in `src` that relates to the app functioning (for example
+scrolling, user confirmations, etc) has been influenced heavily by Sia's Ledger
+app. Extending the app to confirm specific fees, amounts, and recipient pk on
+the screen of the Ledger device will probably look something like
+[this](https://github.com/LedgerHQ/ledger-app-sia/blob/master/src/calcTxnHash.c).
