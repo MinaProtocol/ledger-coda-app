@@ -1,8 +1,3 @@
-#include "os.h"
-#include "cx.h"
-#include "crypto.h"
-#include "poseidon.h"
-
 /*******************************************************************************
  * All of the elliptic curve arithmetic is implemented in this file. That means:
  *  - field_add, field_sub, field_mul, field_sq, field_inv, field_negate, field_pow, field_eq
@@ -21,6 +16,11 @@
  * field modulus and group order differ only in the 25th - 32nd bytes (the start
  * of the third row)
  ********************************************************************************/
+
+#include "os.h"
+#include "cx.h"
+#include "crypto.h"
+#include "poseidon.h"
 
  static const field field_modulus = {
     0x24, 0x04, 0x89, 0x3f, 0xda, 0xd8, 0x87, 0x8e, 0x71, 0x50, 0x3c, 0x69,

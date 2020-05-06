@@ -1,9 +1,3 @@
-#include "os.h"
-#include "cx.h"
-#include "crypto.h"
-#include "poseidon.h"
-
-
 /*******************************************************************************
  * Poseidon is used to hash to a field in the schnorr signature scheme we use.
  * In order to be efficiently computed within the snark, it is computed using
@@ -11,6 +5,11 @@
  * scalar field element, to scale the elliptic curve point. We do all of the
  * computation in this file in the base field, but output the result as a scalar.
  ********************************************************************************/
+
+#include "os.h"
+#include "cx.h"
+#include "crypto.h"
+#include "poseidon.h"
 
 // There are commented out round keys to mirror the OCaml implementation.
 // These could be used if the number of rounds is extended in the future.

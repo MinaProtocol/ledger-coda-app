@@ -1,16 +1,25 @@
+/*******************************************************************************
+ * Poseidon is a hash function explained in https://eprint.iacr.org/2019/458
+ * It requires the following parameters, with p a prime defining a prime field.
+ * alpha = smallest prime st gcd(p, alpha) = 1
+ * m = number of field elements in the state of the hash function.
+ * N = number of rounds the hash function performs on each digest.
+ * For m = r + c, the sponge absorbs (via field addition) and squeezes r field
+ * elements per iteration, and offers log2(c) bits of security.
+ * For our p (definied in crypto.c), we have alpha = 11, m = 3, r = 1, s = 2.
+ *
+ * Poseidon splits the full rounds into two, putting half before the parital
+ * rounds are run, and the other half after. We have :
+ * full rounds = 8
+ * partial = 30, 
+ * meaning that the rounds total 38. 
+ * poseidon.c handles splitting the partial rounds in half and execution order.
+ ********************************************************************************/
+
 #ifndef POSEIDON
 #define POSEIDON
 
 #include "crypto.h"
-
-// alpha = smallest prime st gcd(p, alpha) = 1
-// m = number of field elements in the state
-// N = number of rounds
-// For m = rq + cq, sponge absorbs (via field addition) and squeezes rq field
-// elements per iteration, and offers log2(cq) bits of security.
-// here alpha = 11, m = 3, r = 1, s = 2 ?
-// we split the full rounds into two and put half before the parital ro
-// and half after. we have full rounds = 8 and partial = 30, totalling 38
 
 #define rounds 38
 #define full_rounds 8
