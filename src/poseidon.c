@@ -1,17 +1,18 @@
+/*******************************************************************************
+ * Poseidon is used to hash to a field in the schnorr signature scheme we use.
+ * In order to be efficiently computed within the snark, it is computed using
+ * the base field of the elliptic curve, and the result is then used as a
+ * scalar field element, to scale the elliptic curve point. We do all of the
+ * computation in this file in the base field, but output the result as a scalar.
+ ********************************************************************************/
+
 #include "os.h"
 #include "cx.h"
 #include "crypto.h"
 #include "poseidon.h"
 
-/* poseidon is used to hash to a field in the schnorr signature scheme
- * we use, but due to it being implemented in order to be efficiently
- * computed within the snark, it is actually computed using the base
- * field of the elliptic curve, and then transformed to bits in order
- * to be used to scale the elliptic curve point. We do all of the
- * computation in this file in the base field, but output the result
- * as a field.
- */
-
+// There are commented out round keys to mirror the OCaml implementation.
+// These could be used if the number of rounds is extended in the future.
 static const field round_keys[rounds][sponge_size] = {
     {{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0xac, 0xb6, 0x46, 0x32, 0x16, 0x9b, 0x32, 0xea,
@@ -1220,10 +1221,36 @@ static const field round_keys[rounds][sponge_size] = {
 // alpha = 17
 static const unsigned char alpha = 0x11;
 
+
+/*******************************************************************************
+ * Below are the matrices for the LU decomposion.
+ * The MDS matrix for poseidon is
+ * | 1 0 1 |
+ * | 1 1 0 |
+ * | 0 1 1 |
+ *
+ * and the LU decomposion splits this into an upper half and a lower half,
+ * so that all multiplications can be done in place. This was needed when
+ * we have group elements that were 98 * 2 bytes, because the Ledger device
+ * only has 4KB of RAM, and the flash memory is very slow.
+ *
+ * LU decomposion is explained here : https://en.wikipedia.org/wiki/LU_decomposition
+ * There are calculators online that can produce the lower and upper matrices.
+ *
+ * We have:
+ *
+ *         | 1 0 1 |     | 1 0 0 |   | 1 0  1 |
+ *         | 1 1 0 |  =  | 1 1 0 | . | 0 1 -1 |
+ *         | 0 1 1 |     | 0 1 1 |   | 0 0  2 |
+ *
+ *            full    =    lower   .   upper
+ *
+ ********************************************************************************/
+
 // 1 0 0
 // 1 1 0
 // 0 1 1
-static const field MDS_L_MNT[sponge_size][sponge_size] = {
+static const field MDS_L[sponge_size][sponge_size] = {
     {{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1264,7 +1291,7 @@ static const field MDS_L_MNT[sponge_size][sponge_size] = {
 // 1 0 1
 // 0 1 -1
 // 0 0 2
-static const field MDS_U_MNT[sponge_size][sponge_size] = {
+static const field MDS_U[sponge_size][sponge_size] = {
     {{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1302,6 +1329,8 @@ static const field MDS_U_MNT[sponge_size][sponge_size] = {
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02}}};
 
+
+
 void matrix_mul_up(state s, const state m[sponge_size]) {
 
   field t0;
@@ -1334,9 +1363,15 @@ void matrix_mul_low(state s, const state m[sponge_size]) {
 }
 
 
-// only needs len_e = 1
+// Alpha is only one byte long, so this only needs len_e = 1
 void to_the_alpha(field xa, const field x) { field_pow(xa, x, &alpha); }
 
+// https://eprint.iacr.org/2019/458 (figure on page 8)
+// The implementation here just runs the internal poseidon function to update
+// the state. It takes state as input and mutates this to return the altered
+// state as output. Adding new inputs to the state is done separately, and
+// so the functions poseidon_1in and poseidon_2in handle both the addition
+// of inputs and running of the poseidon function.
 void poseidon(state s) {
   unsigned int half_rounds = full_rounds/2;
   // half of the full rounds
@@ -1345,8 +1380,8 @@ void poseidon(state s) {
       field_add(s[i], s[i], round_keys[r][i]);
       to_the_alpha(s[i], s[i]);
     }
-    matrix_mul_up(s, MDS_U_MNT);
-    matrix_mul_low(s, MDS_L_MNT);
+    matrix_mul_up(s, MDS_U);
+    matrix_mul_low(s, MDS_L);
   }
 
   // all partial rounds
@@ -1356,8 +1391,8 @@ void poseidon(state s) {
       field_add(s[i], s[i], round_keys[r][i]);
     }
     to_the_alpha(s[0], s[0]);
-    matrix_mul_up(s, MDS_U_MNT);
-    matrix_mul_low(s, MDS_L_MNT);
+    matrix_mul_up(s, MDS_U);
+    matrix_mul_low(s, MDS_L);
   }
 
   // other half of the full rounds
@@ -1367,22 +1402,28 @@ void poseidon(state s) {
       field_add(s[i], s[i], round_keys[r][i]);
       to_the_alpha(s[i], s[i]);
     }
-    matrix_mul_up(s, MDS_U_MNT);
-    matrix_mul_low(s, MDS_L_MNT);
+    matrix_mul_up(s, MDS_U);
+    matrix_mul_low(s, MDS_L);
   }
 }
 
+// The first step in poseidon is to add the input to the current state. This is
+// a convenience function for when you want to run poseidon with one element as
+// input.
 void poseidon_1in(state s, const scalar input) {
   field_add(s[0], s[0], input);
   poseidon(s);
 }
 
+// Convenience function for when you want to run poseidon with two elements as
+// input.
 void poseidon_2in(state s, const scalar input0, const scalar input1) {
   field_add(s[0], s[0], input0);
   field_add(s[1], s[1], input1);
   poseidon(s);
 }
 
+// Squeezing poseidon returns the first element of its current state.
 void poseidon_digest(scalar out, const state s) {
   os_memcpy(out, s[0], field_bytes);
 }
