@@ -27,3 +27,20 @@ To sign a transaction, with pk 1234 (`"nonce":37` in the JSON gives the signatur
 ```
 python3 cli/sign.py --request=transaction --nonce=1234 --transaction='{"sendPayment": {"is_delegation": "False","nonce": 37,"from": 123,"to": "tNci9iZe1p3KK4MCcqDa52mpxBTveEm3kqZMm7vwJF9uKzGGt1pCHVNa2oMevDb1HDAs4bNdMQLNbD8N3tkCtKNGM53obE9qFkkhmqMnKRLNLiSfPJuLGsSwqnL3HxSqciJoqJJJmq5Cfb","amount": 1000,"fee": 8,"valid_until": 1600,"memo": "2pmu64f2x97tNiDXMycnLwBSECDKbX77MTXVWVsG8hcRFsedhXDWWq"}}'
 ```
+
+## mnt753
+`mnt753` contains all the same directories as above, except implementing the
+elliptic curve arithmetic over mnt753 instead of bn382. It also contains the
+scripts needed to generate the binaries that are released so that users don't
+have to install all the dependencies and compile everything themselves in
+order to load and use the app on the Ledger devices.
+
+## mnt753/ledger-precompile
+`mnt753/ledger-precompile` includes scripts for loading and deleting the app,
+with all of the SDK and C compiler requirements removed. `delete.sh` deletes
+the app called 'Coda' on the user's Ledger device, and so nothing other than
+python3 itself and the python3 ledgerblue library needs to be installed on a
+user's machine to use this script. `load.sh` also has dependencies on python3
+and the python3 ledgerblue library, and additionally expects there to be an
+app file in `./bin/app.hex`. This is contained in the release
+[here](https://github.com/CodaProtocol/ledger-coda-app/releases/tag/v0.1.0).
