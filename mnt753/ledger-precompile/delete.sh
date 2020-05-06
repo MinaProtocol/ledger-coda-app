@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TARGET_ID="0x31100004"
-TARGET_VERSION="1.5.5" 
+TARGET_VERSION="1.6.0"
 APP_NAME="Coda"
 APP_VERSION="0.0.1"
 ICON_NAME="nanos_app_coda.gif"

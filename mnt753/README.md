@@ -44,3 +44,10 @@ user's machine to use this script. `load.sh` also has dependencies on python3
 and the python3 ledgerblue library, and additionally expects there to be an
 app file in `./bin/app.hex`. This is contained in the release
 [here](https://github.com/CodaProtocol/ledger-coda-app/releases/tag/v0.1.0).
+
+`load.sh` and `delete.sh` both contain variables called `TARGET_ID` and
+`TARGET_VERSION`. `TARGET_ID="0x31100004"` means that the scripts are being
+run for the Ledger Nano S, and `TARGET_VERSION="1.6.0"` means that they are
+being run for firmware version `1.6.0`. Changing to other firmware versions
+may not cause any issues, but it is currently untested. Changing to different
+target IDs probably will cause issues, but this is also currently untested.
