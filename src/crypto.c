@@ -3,15 +3,26 @@
 #include "crypto.h"
 #include "poseidon.h"
 
-// E1/Fp : y^2 = x^3 + 7
-// BN382_p =
-// 5543634365110765627805495722742127385843376434033820803590214255538854698464778703795540858859767700241957783601153
-// BN382_q =
-// 5543634365110765627805495722742127385843376434033820803592568747918351978899288491582778380528407187068941959692289
-// 382 bits = 48 bytes
-// field modulus and group order differ only in the 25th - 32nd bytes (the start
-// of the third row)
-static const field field_modulus = {
+/*******************************************************************************
+ * All of the elliptic curve arithmetic is implemented in this file. That means:
+ *  - field_add, field_sub, field_mul, field_sq, field_inv, field_negate, field_pow, field_eq
+ *  - scalar_add, scalar_sub, scalar_mul, scalar_sq, scalar_pow, scalar_eq
+ *  - group_add, group_dbl, group_scalar_mul (group elements use projective coordinates)
+ *  - affine_scalar_mul
+ *  - projective_to_affine
+ *  - generate_pubkey, generate_keypair
+ *  - sign. Produces a schnorr signature according to the specification here :
+ *    https://github.com/CodaProtocol/coda/blob/develop/docs/specs/signatures/description.md
+ *
+ * E1/Fp : y^2 = x^3 + 7
+ * BN382_p = 5543634365110765627805495722742127385843376434033820803590214255538854698464778703795540858859767700241957783601153
+ * BN382_q = 5543634365110765627805495722742127385843376434033820803592568747918351978899288491582778380528407187068941959692289
+ * 382 bits = 48 bytes
+ * field modulus and group order differ only in the 25th - 32nd bytes (the start
+ * of the third row)
+ ********************************************************************************/
+
+ static const field field_modulus = {
     0x24, 0x04, 0x89, 0x3f, 0xda, 0xd8, 0x87, 0x8e, 0x71, 0x50, 0x3c, 0x69,
     0xb0, 0x9d, 0xbf, 0x88, 0xb4, 0x8a, 0x36, 0x14, 0x28, 0x9b, 0x09, 0x01,
     0x20, 0x12, 0x24, 0x6d, 0x22, 0x42, 0x41, 0x20, 0x00, 0x00, 0x00, 0x01,
